@@ -1,6 +1,9 @@
+import os
 class Board:
     def __init__(self):
-        self.board = [['_' for _ in range(8)] for _ in range(8)]
+        self.queen = "Q"
+        self.blank = "_"
+        self.board = [[self.blank for _ in range(8)] for _ in range(8)]
         
     def __repr__(self):
         res = ""
@@ -11,31 +14,34 @@ class Board:
             res += "\n"
         return res
     
+    def is_queen(self, row, col):
+        return self.board[row][col] == self.queen
+    
     def is_legal(self, row, col):
         return self.is_legal_row(row, col) and self.is_legal_col(row, col) and self.is_legal_diag(row, col)
     
     def is_legal_row(self, row, col):
         for j in range(len(self.board)):
-            if self.board[row][j] == "Q":
+            if self.board[row][j] == self.queen:
                 return False
         return True
     
     def is_legal_col(self, row, col):
         for i in range(len(self.board)):
-            if self.board[i][col] == "Q":
+            if self.board[i][col] == self.queen:
                 return False
         return True
     
     
     def is_legal_diag(self, row, col):
         for i in range(len(self.board)):
-            if self.is_on_board(row - i, col - i) and self.board[row - i][col - i] =="Q":
+            if self.is_on_board(row - i, col - i) and self.is_queen(row - i, col - i):
                 return False
-            if self.is_on_board(row - i, col + i) and self.board[row - i][col + i] =="Q":
+            if self.is_on_board(row - i, col + i) and self.is_queen(row - i, col + i):
                 return False
-            if self.is_on_board(row + i, col - i) and self.board[row + i][col - i] =="Q":
+            if self.is_on_board(row + i, col - i) and self.is_queen(row + i, col - i):
                 return False
-            if self.is_on_board(row + i, col + i) and self.board[row + i][col + i] =="Q":
+            if self.is_on_board(row + i, col + i) and self.is_queen(row + i, col + i):
                 return False
         return True
     
@@ -57,28 +63,39 @@ class Board:
     def search(self):
         row = 0
         col = 0
+        nsols = 0
         while row >= 0: 
             if row < 8:
-                if self.is_legal(row,col):
-                    self.set_queen_at(row, col)
-                    row += 1
-                    col = 0
-                else:
-                    col += 1
-                    while col >= 8:
-                        col = self.get_queen_on(row - 1)
-                        self.unset_queen_on(row - 1)
-                        col += 1
-                        row -= 1
-            else:
-                print("found a solution")
-                print(self)
-                while col >= 8:
-                    col = self.get_queen_on(row - 1)
-                    self.unset_queen_on(row - 1)
+                if col >= 8:
+                    row -= 1
+                    if row >= 0:   
+                        col = self.get_queen_on(row) + 1
+                        self.unset_queen_on(row)
                     col += 1
                     row -= 1
-                
+                else:    
+                    if self.is_legal(row,col):
+                        self.set_queen_at(row, col)
+                        row += 1
+                        col = 0
+                    else:
+                        col += 1
+                    
+            else:
+                nsols += 1
+                print("found a solution: ", nsols)
+                print(self)
+                input("Enter for next solutions: ")
+                os.systen("clear")
+                row -= 1
+                col = self.get_queen_on(row)
+                self.unset_queen_on(row)
+                col += 1
+                while col >= 8:
+                    row -= 1
+                    col = self.get_queen_on(row)
+                    self.unset_queen_on(row)
+                    col += 1
         
         
 my_board = Board()
